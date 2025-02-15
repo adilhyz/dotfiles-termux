@@ -1,3 +1,9 @@
+#!/bin/bash
+## ┃┏━ ┏━┛━┏┛┏━┃┃  ┃  ┏━┛┏━┃
+## ┃┃ ┃━━┃ ┃ ┏━┃┃  ┃  ┏━┛┏┏┛
+## ┛┛ ┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛┛ ┛
+#
+# Warna
 MER=$(tput setaf 1)
 KUN=$(tput setaf 3)
 HIJ=$(tput setaf 2)
@@ -5,7 +11,6 @@ BRU=$(tput setaf 4)
 BLD=$(tput bold)
 RST=$(tput sgr0)
 
-date=$(date +%Y%m%d-%H%M%S)
 ERROR_LOG="$HOME/RiceError.log"
 
 logo () {
@@ -17,9 +22,9 @@ logo () {
            %%%%%%%                  
          ##%%%%%###                 
          @%%%%%%%#+#                
-         @%%@@@%#**                 
-         %%@@@@@%#*  **             
-       %%%@@@@@@%%###%              
+         @%%@@@%#**                  
+         %%@@@@@%#*  **              
+       %%%@@@@@@%%###%               
      %%%%%@@@@@@@%%#   ###          
     %% %%%@@@@@@@@%##%%%%           
    %% %%%@@@@@@@%%%%%               
@@ -44,65 +49,50 @@ while true; do
         * ) printf " Error: just write 'y' or 'n'\n\n" ;;
     esac
 done
-#clear
 
-dependency=(git pacman proot-distro zsh)
+# Daftar package untuk Termux
+dependency=(git proot-distro vim zsh)
 
 is_installed() {
-  pacman -Qi "$1" &> /dev/null
-  return $?
+    command -v "$1" >/dev/null 2>&1 || dpkg -s "$1" >/dev/null 2>&1
 }
 
 printf "%s%sChecking for required packages...%s\n" "${BLD}" "${BRU}" "${RST}"
 for package in "${dependency[@]}"; do
     if ! is_installed "$package"; then
-        if apt install "$package" -y >/dev/null 2> >(tee -a "$ERROR_LOG"); then
-            printf "%s%s%s %shas been installed succesfully.%s\n" "${BLD}" "${KUN}" "$package" "${BRU}" "${RST}"
-            sleep 1
+        if pkg install -y "$package" >/dev/null 2>> "$ERROR_LOG"; then
+            printf "%s%s%s %shas been installed successfully.%s\n" "${BLD}" "${KUN}" "$package" "${BRU}" "${RST}"
         else
-            printf "%s%s%s %shas not been installed correctly. See %sInstallError.log %sfor more details.%s\n" "${BLD}" "${KUN}" "$package" "${MER}" "${BRU}" "${MER}" "${RST}"
-            sleep 1
+            printf "%s%s%s %shas not been installed correctly. See %sRiceError.log %sfor more details.%s\n" "${BLD}" "${KUN}" "$package" "${MER}" "${BRU}" "${MER}" "${RST}"
         fi
     else
         printf '%s%s%s %sis already installed on your system!%s\n' "${BLD}" "${KUN}" "$package" "${HIJ}" "${RST}"
-        sleep 1
     fi
 done
-sleep 5
 
 logo "Downloading dotfiles"
 repo_url="https://github.com/adilhyz/dotfiles-termux"
 repo_dir="$HOME/dotfiles-termux"
 
-	if [ -d "$repo_dir" ]; then
-		printf "Removing existing dotfiles repository\n"
-		rm -rf "$repo_dir"
-	fi
+if [ -d "$repo_dir" ]; then
+    printf "Removing existing dotfiles repository\n"
+    rm -rf "$repo_dir"
+fi
 
-# Clona el repositorio
 printf "Cloning dotfiles from %s\n" "$repo_url"
 git clone --depth=1 "$repo_url" "$repo_dir"
 
-sleep 2
-clear
-
-cp -f "$HOME"/dotfiles-termux/home/.zshrc "$HOME"
+cp -f "$HOME/dotfiles-termux/home/.zshrc" "$HOME"
 fc-cache -rv >/dev/null 2>&1
-#sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-#git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-printf "%s%sFiles copied succesfully!!%s\n" "${BLD}" "${HIJ}" "${RST}"
-sleep 1
+
+printf "%s%sFiles copied successfully!!%s\n" "${BLD}" "${HIJ}" "${RST}"
 
 printf "%s%sDone!!%s\n\n" "${BLD}" "${HIJ}" "${RST}"
-sleep 2
+
 logo "Changing default shell to zsh"
 
-if [[ $SHELL != "/usr/bin/zsh" ]]; then
-	printf "\n%s%sChanging your shell to zsh. Your root password is needed.%s\n\n" "${BLD}" "${KUN}" "${RST}"
-	# Cambia la shell a zsh
-	chsh -s /usr/bin/zsh
-	printf "%s%sShell changed to zsh. Please reboot.%s\n\n" "${BLD}" "${HIJ}" "${RST}"
-else
-	printf "%s%sYour shell is already zsh\nGood bye! installation finished, now reboot%s\n" "${BLD}" "${HIJ}" "${RST}"
-fi
-zsh
+echo "exec zsh" >> "$HOME/.zshrc"
+
+printf "%s%sYour shell is now set to zsh. Restart Termux to apply changes!%s\n" "${BLD}" "${HIJ}" "${RST}"
+
+exec zsh
