@@ -68,11 +68,11 @@ is_installed() {
 printf "%s%sChecking for required packages...%s\n" "${BLD}" "${BRU}" "${RST}"
 for package in "${dependency[@]}"; do
     if ! is_installed "$package"; then
-        if sudo pacman -S "$package" --noconfirm >/dev/null 2>> RiceError.log; then
+        if apt install "$package" -y >/dev/null 2>> InstallError.log; then
             printf "%s%s%s %shas been installed succesfully.%s\n" "${BLD}" "${KUN}" "$package" "${BRU}" "${RST}"
             sleep 1
         else
-            printf "%s%s%s %shas not been installed correctly. See %sRiceError.log %sfor more details.%s\n" "${BLD}" "${KUN}" "$package" "${MER}" "${BRU}" "${MER}" "${RST}"
+            printf "%s%s%s %shas not been installed correctly. See %sInstallError.log %sfor more details.%s\n" "${BLD}" "${KUN}" "$package" "${MER}" "${BRU}" "${MER}" "${RST}"
             sleep 1
         fi
     else
