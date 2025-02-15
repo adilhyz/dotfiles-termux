@@ -97,4 +97,32 @@ else
 	printf "%s%sYour shell is already zsh\nGood bye! installation finished, now reboot%s\n" "${BLD}" "${HIJ}" "${RST}"
 fi
 
+# Mulai setup Arch Linux dengan Proot-Distro
+logo "Installing Arch Linux in Termux"
+if ! proot-distro list | grep -q "archlinux"; then
+    printf "%s%sInstalling Arch Linux...%s\n" "${BLD}" "${HIJ}" "${RST}"
+    proot-distro install archlinux
+fi
+
+# Jalankan Arch Linux dan buat user baru
+logo "Setting up user in Arch Linux"
+proot-distro login archlinux -- bash -c "
+    printf '\n%s%sEnter new username: %s' '${BLD}' '${KUN}' '${RST}'
+    read NEW_USER
+    printf '\n%s%sEnter password for user %s: %s' '${BLD}' '${KUN}' '\$NEW_USER' '${RST}'
+    read -s NEW_PASS
+    printf '\n\n'
+    
+    pacman -Syu --noconfirm sudo vim
+
+    useradd -m -G wheel -s /bin/zsh \"\$NEW_USER\"
+    echo \"\$NEW_USER:\$NEW_PASS\" | chpasswd
+
+    echo \"%wheel ALL=(ALL) ALL\" > /etc/sudoers.d/wheel
+    echo \"Defaults editor=/usr/bin/vim\" >> /etc/sudoers
+"
+
+printf "%s%sUser setup completed! You can now log in as your new user.%s\n" "${BLD}" "${HIJ}" "${RST}"
+printf "%s%sType 'proot-distro login archlinux' to start Arch Linux.%s\n" "${BLD}" "${HIJ}" "${RST}"
+
 zsh
