@@ -8,8 +8,6 @@ RST=$(tput sgr0)
 date=$(date +%Y%m%d-%H%M%S)
 ERROR_LOG="$HOME/RiceError.log"
 
-
-
 logo () {
 	local text="${1:?}"
 	echo -en "
@@ -48,7 +46,7 @@ while true; do
 done
 #clear
 
-dependency=(pacman proot-distro zsh)
+dependency=(git pacman proot-distro zsh)
 
 is_installed() {
   pacman -Qi "$1" &> /dev/null
@@ -89,7 +87,7 @@ sleep 2
 clear
 
 cp -f "$HOME"/dotfiles-termux/home/.zshrc "$HOME"
-#fc-cache -rv >/dev/null 2>&1
+fc-cache -rv >/dev/null 2>&1
 #sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 #git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 printf "%s%sFiles copied succesfully!!%s\n" "${BLD}" "${HIJ}" "${RST}"
