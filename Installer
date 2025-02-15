@@ -51,7 +51,7 @@ while true; do
 done
 
 # Daftar package untuk Termux
-dependency=(git proot-distro vim zsh)
+dependency=(bat eza neofetch screenfetch git proot-distro termux-api vim wget zsh)
 
 is_installed() {
     command -v "$1" >/dev/null 2>&1 || dpkg -s "$1" >/dev/null 2>&1
@@ -81,18 +81,13 @@ fi
 
 printf "Cloning dotfiles from %s\n" "$repo_url"
 git clone --depth=1 "$repo_url" "$repo_dir"
-
 cp -f "$HOME/dotfiles-termux/home/.zshrc" "$HOME"
 fc-cache -rv >/dev/null 2>&1
-
 printf "%s%sFiles copied successfully!!%s\n" "${BLD}" "${HIJ}" "${RST}"
-
 printf "%s%sDone!!%s\n\n" "${BLD}" "${HIJ}" "${RST}"
 
 logo "Changing default shell to zsh"
-
 echo "exec zsh" >> "$HOME/.zshrc"
-
 printf "%s%sYour shell is now set to zsh. Restart Termux to apply changes!%s\n" "${BLD}" "${HIJ}" "${RST}"
 
 exec zsh
