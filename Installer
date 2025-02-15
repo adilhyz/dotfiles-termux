@@ -88,10 +88,10 @@ printf "%s%sDone!!%s\n\n" "${BLD}" "${HIJ}" "${RST}"
 
 logo "Changing default shell to zsh"
 
-if [[ $SHELL != "/usr/bin/zsh" ]]; then
-	printf "\n%s%sChanging your shell to zsh. Your root password is needed.%s\n\n" "${BLD}" "${KUN}" "${RST}"
+if [[ $SHELL != "zsh" ]]; then
+	printf "\n%s%sChanging your shell to zsh.%s\n\n" "${BLD}" "${KUN}" "${RST}"
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --skip-chsh --unattended
-	#chsh -s /usr/bin/zsh
+	chsh -s zsh
 	printf "%s%sShell changed to zsh. Please reboot.%s\n\n" "${BLD}" "${HIJ}" "${RST}"
 else
 	printf "%s%sYour shell is already zsh\nGood bye! installation finished, now reboot%s\n" "${BLD}" "${HIJ}" "${RST}"
