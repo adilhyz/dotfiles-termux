@@ -104,6 +104,7 @@ if ! proot-distro list | grep -q "archlinux"; then
     proot-distro install archlinux
 fi
 
+
 # Jalankan Arch Linux dan buat user baru
 logo "Setting up user in Arch Linux"
 proot-distro login archlinux -- bash -c "
@@ -120,9 +121,38 @@ proot-distro login archlinux -- bash -c "
 
     echo \"%wheel ALL=(ALL) ALL\" > /etc/sudoers.d/wheel
     echo \"Defaults editor=/usr/bin/vim\" >> /etc/sudoers
+    
+    # Simpan username ke file .user.list di Termux
+    echo \"\$NEW_USER\" > /data/data/com.termux/files/home/.user.list
 "
 
 printf "%s%sUser setup completed! You can now log in as your new user.%s\n" "${BLD}" "${HIJ}" "${RST}"
 printf "%s%sType 'proot-distro login archlinux' to start Arch Linux.%s\n" "${BLD}" "${HIJ}" "${RST}"
 
-zsh
+nyarch() {
+  echo -n "\nJalankan Arch Linux? (y/n): "
+  read REPLY
+  case "$REPLY" in
+    y|Y) 
+      if [[ -f /data/data/com.termux/files/home/.user.list ]]; then
+        USERNAME=$(cat /data/data/com.termux/files/home/.user.list)
+        exec proot-distro login archlinux --user "$USERNAME"
+      else
+        echo "Error: File .user.list not found!"
+        return
+      fi
+      ;;
+    n|N) return ;;
+    *) echo "Jawaban tidak valid. Silakan masukkan 'y' atau 'n'."; nyarch ;;
+  esac
+}
+
+# Cek apakah sudah dalam sesi proot
+if [[ -z "$PROOT_RUNNING" ]]; then
+  export PROOT_RUNNING=1  # Mencegah loop jika logout dari Arch
+  
+  # Otomatis jalankan Arch Linux dengan konfirmasi
+  if [[ -t 1 ]]; then
+    nyarch
+  fi
+fi
