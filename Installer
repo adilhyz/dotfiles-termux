@@ -5,46 +5,36 @@ BRU=$(tput setaf 4)
 BLD=$(tput bold)
 RST=$(tput sgr0)
 
+date=$(date +%Y%m%d-%H%M%S)
+ERROR_LOG="$HOME/RiceError.log"
+
+
+
 logo () {
 	local text="${1:?}"
 	echo -en "
-                                   ███                                
-                               ██████████                             
-                          ██████████████████                          
-                           ███████████████████                        
-                               █████████                              
-                             ██████████                               
-                            ███████████                               
-                         ████████████████                             
-                         █████████████████                            
-                          ██████████████                              
-                          ███████████████                             
-                         ████████████████                             
-                         █████████████████     █                      
-                        ████████████████████████                      
-                      ██████████████████████                          
-                    ██████████████████████                            
-                  ███  ███████████████████      █████                 
-                 ██    ███████████████████   █████                    
-                ███   ████████████████████████                        
-               ██    ███████████████████████                          
-               █  █████████████████████████                           
-               ████████████████████████████                           
-              ██ ███████████████████████████                          
-                 ███████████████████████████                          
-               ██████████████████████████████                         
-                ██  █████████████████████████                         
-                 ██████████████████████████ ██                        
-              ████████████████████████████  █                         
-            ██     ██████ ████████████████                            
-                    ███  █████████████████                            
-                          ████████████████                            
-                             ████ ████████                            
-                             ███████████                              
-                             ████████████                             
-                                 ████████████                         
-                                  ████████████                        
-                                  Dotfiles "${HIJ}"Termux"${RST}"\n\n"
+               %%                   
+          #%#####*+=                
+          @@%@@@@%%#%%              
+           %%%%%%%                  
+         ##%%%%%###                 
+         @%%%%%%%#+#                
+         @%%@@@%#**                 
+         %%@@@@@%#*  **             
+       %%%@@@@@@%%###%              
+     %%%%%@@@@@@@%%#   ###          
+    %% %%%@@@@@@@@%##%%%%           
+   %% %%%@@@@@@@%%%%%               
+   %%%%%%%%%@@%%####                
+   %%%%%@@@@%%%@@@%%%               
+    %%%%%%%@@@@@@%%%%               
+    ###%%%@@@@@%@%%%%%              
+  ## ###%%%@@@@@@@%#                
+       # %%@@@%%%%%                 
+           %%%%%%%%                 
+           ####%%##*#               
+              #####%%%              
+      Dotfiles "${HIJ}"Termux"${RST}"\n\n"
 }
 
 logo "Welcome!"
@@ -68,7 +58,7 @@ is_installed() {
 printf "%s%sChecking for required packages...%s\n" "${BLD}" "${BRU}" "${RST}"
 for package in "${dependency[@]}"; do
     if ! is_installed "$package"; then
-        if apt install "$package" -y >/dev/null 2>> InstallError.log; then
+        if apt install "$package" -y >/dev/null 2> >(tee -a "$ERROR_LOG"); then
             printf "%s%s%s %shas been installed succesfully.%s\n" "${BLD}" "${KUN}" "$package" "${BRU}" "${RST}"
             sleep 1
         else
@@ -81,6 +71,22 @@ for package in "${dependency[@]}"; do
     fi
 done
 sleep 5
+
+logo "Downloading dotfiles"
+repo_url="https://github.com/adilhyz/dotfiles-termux"
+repo_dir="$HOME/dotfiles-termux"
+
+	if [ -d "$repo_dir" ]; then
+		printf "Removing existing dotfiles repository\n"
+		rm -rf "$repo_dir"
+	fi
+
+# Clona el repositorio
+printf "Cloning dotfiles from %s\n" "$repo_url"
+git clone --depth=1 "$repo_url" "$repo_dir"
+
+sleep 2
+clear
 
 cp -f "$HOME"/dotfiles-termux/home/.zshrc "$HOME"
 #fc-cache -rv >/dev/null 2>&1
