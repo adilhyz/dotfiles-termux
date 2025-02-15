@@ -90,4 +90,4 @@ logo "Changing default shell to zsh"
 echo "exec zsh" >> "$HOME/.zshrc"
 printf "%s%sYour shell is now set to zsh. Restart Termux to apply changes!%s\n" "${BLD}" "${HIJ}" "${RST}"
 
-exec zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --skip-chsh --unattended && zsh
