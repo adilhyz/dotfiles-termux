@@ -12,6 +12,8 @@ BLD=$(tput bold)
 RST=$(tput sgr0)
 
 ERROR_LOG="$HOME/RiceError.log"
+TDIR="$PWD"
+ARCHDIR="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/archlinux/home/"
 
 logo () {
 	local text="${1:?}"
@@ -70,7 +72,7 @@ for package in "${dependency[@]}"; do
     fi
 done
 
-logo "Downloading dotfiles"
+printf "Downloading files"
 repo_url="https://github.com/adilhyz/dotfiles-termux"
 repo_dir="$HOME/dotfiles-termux"
 
@@ -81,10 +83,38 @@ fi
 
 printf "Cloning dotfiles from %s\n" "$repo_url"
 git clone --depth=1 "$repo_url" "$repo_dir"
-cp -f "$HOME/dotfiles-termux/home/.zshrc" "$HOME"
+cp -f "$HOME/dotfiles-termux/home/.zshrc.termux" "$HOME"
 fc-cache -rv >/dev/null 2>&1
 printf "%s%sFiles copied successfully!!%s\n" "${BLD}" "${HIJ}" "${RST}"
 printf "%s%sDone!!%s\n\n" "${BLD}" "${HIJ}" "${RST}"
+
+printf "Copying files to respective directories..\n"
+
+[ ! -d ~/.config ] && mkdir -p ~/.config
+[ ! -d ~/.local/bin ] && mkdir -p ~/.local/bin
+
+for dirs in ~/dotfiles/config/*; do
+    dir_name=$(basename "$dirs")
+# If the directory is nvim and the user doesn't want to try it, skip this loop
+    if [[ $dir_name == "nvim" && $try_nvim != "y" ]]; then
+        continue
+    fi
+    if cp -R "${dirs}" ~/.config/ 2>> RiceError.log; then
+        printf "%s%s%s %sconfiguration installed succesfully%s\n" "${BLD}" "${CYE}" "${dir_name}" "${CGR}" "${CNC}"
+        sleep 1
+    else
+        printf "%s%s%s %sconfiguration failed to been installed, see %sRiceError.log %sfor more details.%s\n" "${BLD}" "${CYE}" "${dir_name}" "${CRE}" "${CBL}" "${CRE}" "${CNC}"
+        sleep 1
+    fi
+done
+
+if cp -R ~/dotfiles/misc/bin ~/.local/ 2>> RiceError.log; then
+    printf "%s%sbin %sfolder copied succesfully!%s\n" "${BLD}" "${CYE}" "${CGR}" "${CNC}"
+    sleep 1
+else
+    printf "%s%sbin %sfolder failed to been copied, see %sRiceError.log %sfor more details.%s\n" "${BLD}" "${CYE}" "${CRE}" "${CBL}" "${CRE}" "${CNC}"
+    sleep 1
+fi
 
 logo "Changing default shell to zsh"
 
@@ -114,7 +144,7 @@ proot-distro login archlinux -- bash -c "
     read -s NEW_PASS
     printf '\n\n'
     
-    pacman -Syu --noconfirm sudo vim
+    pacman -Syu --noconfirm bat eza neofetch neovim sudo vim zsh
 
     useradd -m -G wheel -s /bin/zsh \"\$NEW_USER\"
     echo \"\$NEW_USER:\$NEW_PASS\" | chpasswd
@@ -127,7 +157,8 @@ proot-distro login archlinux -- bash -c "
 "
 
 printf "%s%sUser setup completed! You can now log in as your new user.%s\n" "${BLD}" "${HIJ}" "${RST}"
-printf "%s%sType 'proot-distro login archlinux' to start Arch Linux.%s\n" "${BLD}" "${HIJ}" "${RST}"
+printf "%s%sType 'proot-distro login user' or 'startx' to start Arch Linux.%s\n" "${BLD}" "${HIJ}" "${RST}"
+cp -f "$TDIR"/home/.zshrc.arch "$ARCHDIR"/"$(cat /data/data/com.termux/files/home/.user.list)"/.zshrc
 
 nyarch() {
   echo -n "\nJalankan Arch Linux? (y/n): "

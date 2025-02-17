@@ -1,0 +1,8 @@
+require("adilhyz.plugins-setup")
+require("adilhyz.core.options")
+require("adilhyz.core.keymaps")
+require("adilhyz.core.colorscheme")
+require("adilhyz.core.comments")
+require("adilhyz.plugins.nvim-tree")
+require("adilhyz.plugins.lualine")
+require("adilhyz.plugins.colorizer")
